@@ -4,12 +4,20 @@
 set -euo pipefail
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/proy-nuevo}"
-NETWORK="${NETWORK:-proy-nuevo_internal}"
+
+# Compose derives the project name from the deployment directory unless
+# COMPOSE_PROJECT_NAME overrides it. The network must carry Compose's labels,
+# otherwise `docker compose up` refuses a network it did not create itself.
+PROJECT="${COMPOSE_PROJECT_NAME:-$(basename "$DEPLOY_DIR" | tr '[:upper:]' '[:lower:]')}"
+NETWORK="${NETWORK:-${PROJECT}_internal}"
 
 mkdir -p "$DEPLOY_DIR/infra/caddy" "$DEPLOY_DIR/infra/github"
 
 if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
-    docker network create "$NETWORK" >/dev/null
+    docker network create \
+        --label "com.docker.compose.project=$PROJECT" \
+        --label "com.docker.compose.network=internal" \
+        "$NETWORK" >/dev/null
     echo "created network $NETWORK"
 else
     echo "network $NETWORK already exists"
