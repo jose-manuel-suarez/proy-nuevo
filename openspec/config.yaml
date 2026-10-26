@@ -4,29 +4,40 @@ schema: spec-driven
 # Add only constraints that should guide OpenSpec artifacts and workflows.
 # Include constraints an agent cannot infer by reading the code.
 # Keep general project documentation and discoverable codebase facts out.
-# Example:
-#   context: |
-#     Designs and tasks must cover Windows, macOS, and Linux
-#     Write all artifacts in Spanish
+context: |
+  Two separately deployable applications in one repository: a FastAPI backend
+  and a server-rendered Flask frontend. PostgreSQL is the only persistence.
+  Everything runs in containers, including application code, for local
+  development and production. Production is a single VPS running Docker
+  Compose behind Caddy; GitHub Actions owns CI/CD.
+
+  The user writes in Spanish; agents reply in English.
 
 # Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always state what is out of scope
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Include rollback plan
+    - Write in English
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Write normative keywords in English. Use MUST on the first verb of each
+      requirement, and MUST NOT for prohibitions
+  design:
+    - Include sequence diagrams for complex flows
+    - Write in English
+  tasks:
+    - Write in English
 
 # Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+operations:
+  archive:
+    guidance:
+      - Run the archive on the current feature branch, never on `main`.
+      - Run `openspec validate --specs --strict` before committing.
+      - git push -u origin <branch> and then gh pr create --base main.
+      - If the branch already has an open PR, do not create another one.
+      - If the change is already archived on this branch, skip the archive step
+        and continue with validation and the pull request.
+      - The PR merges only when the `archive` label is applied, because that
+        label is the sole trigger for the squash merge and the branch
+        deletion.

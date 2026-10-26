@@ -1,0 +1,100 @@
+name: gate
+
+on:
+  pull_request:
+    types: [labeled]
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: gate-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: >
+      (github.event_name == 'pull_request' && github.event.label.name == 'archive') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve the pull request
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            number="${{ github.event.pull_request.number }}"
+          else
+            branch="${{ github.event.workflow_run.head_branch }}"
+            number="$(gh pr list --state open --head "$branch" --json number --jq '.[0].number // empty')"
+          fi
+
+          if [[ -z "$number" ]]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "number=$number" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Evaluate merge gates
+        if: steps.resolve.outputs.found == 'true'
+        id: gates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMBER: ${{ steps.resolve.outputs.number }}
+        run: |
+          labels="$(gh pr view "$NUMBER" --json labels --jq '.labels[].name')"
+          if ! grep -qx "archive" <<< "$labels"; then
+            echo "merge=false" >> "$GITHUB_OUTPUT"
+            echo "archive label is absent; merge is not authorized"
+            exit 0
+          fi
+
+          mergeable="$(gh pr view "$NUMBER" --json mergeable --jq '.mergeable')"
+          if [[ "$mergeable" != "MERGEABLE" ]]; then
+            echo "merge=false" >> "$GITHUB_OUTPUT"
+            echo "pull request is not mergeable: $mergeable"
+            exit 0
+          fi
+
+          if ! gh pr checks "$NUMBER" --required; then
+            echo "merge=false" >> "$GITHUB_OUTPUT"
+            echo "required checks are not green"
+            exit 0
+          fi
+
+          echo "merge=true" >> "$GITHUB_OUTPUT"
+
+      - name: Squash merge
+        if: steps.gates.outputs.merge == 'true'
+        id: merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMBER: ${{ steps.resolve.outputs.number }}
+        run: |
+          state="$(gh pr view "$NUMBER" --json state --jq '.state')"
+          if [[ "$state" != "MERGED" ]]; then
+            gh pr merge "$NUMBER" --squash --delete-branch
+          fi
+
+          sha="$(gh pr view "$NUMBER" --json mergeCommit --jq '.mergeCommit.oid')"
+          if [[ -z "$sha" || "$sha" == "null" ]]; then
+            echo "::error::could not resolve the merge commit"
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch deployment
+        if: steps.gates.outputs.merge == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ steps.merge.outputs.sha }}
+        run: |
+          gh workflow run deploy.yml --ref main -f image_tag="$SHA"
