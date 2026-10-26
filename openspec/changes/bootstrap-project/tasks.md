@@ -81,7 +81,7 @@
 - [ ] 9.2 Force a post-deploy health failure and verify automatic rollback restores the previous tag and reports the deployment as failed.
 - [ ] 9.3 Run the manual rollback command on a healthy deployment and verify the prior release serves traffic within five minutes.
 - [ ] 9.4 Verify the public port surface: HTTPS serves the frontend, the backend is unreachable from the internet, and PostgreSQL is reachable only from the container network.
-- [ ] 9.5 Reproduce from scratch: clone the repository, copy the environment example, run the quick start, and verify the local stack serves the index page.
+- [x] 9.5 Reproduce from scratch: clone the repository, copy the environment example, run the quick start, and verify the local stack serves the index page.
 
 ## Workflow follow-up
 
