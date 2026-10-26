@@ -1,0 +1,14 @@
+{% if error %}
+  <p class="status status-error" role="alert">
+    Backend unavailable: {{ error }}
+  </p>
+{% else %}
+  <dl class="status">
+    <dt>Service</dt>
+    <dd>{{ info.service }}</dd>
+    <dt>Version</dt>
+    <dd>{{ info.version }}</dd>
+    <dt>Environment</dt>
+    <dd>{{ info.environment }}</dd>
+  </dl>
+{% endif %}

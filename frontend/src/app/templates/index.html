@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Service status — proy-nuevo{% endblock %}
+
+{% block content %}
+  <h1>Service status</h1>
+  <p class="lede">
+    This page is rendered by Flask and refreshed through HTMX without a full
+    page reload.
+  </p>
+
+  <section class="panel" aria-live="polite">
+    <div id="status">
+      {% include "partials/status.html" %}
+    </div>
+    <button
+      class="button"
+      type="button"
+      hx-get="{{ url_for('views.status_partial') }}"
+      hx-target="#status"
+      hx-swap="innerHTML"
+    >
+      Refresh status
+    </button>
+  </section>
+{% endblock %}

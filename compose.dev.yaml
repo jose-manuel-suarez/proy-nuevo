@@ -1,0 +1,48 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command:
+      - uvicorn
+      - app.main:create_app
+      - --factory
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+      - --reload-dir
+      - /app/src
+    environment:
+      PYTHONPATH: /app/src
+      APP_ENV: development
+    volumes:
+      - ./backend/src:/app/src
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    command:
+      - flask
+      - --app
+      - app.main
+      - run
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --debug
+    environment:
+      PYTHONPATH: /app/src
+      APP_ENV: development
+      FLASK_DEBUG: "1"
+    volumes:
+      - ./frontend/src:/app/src
+
+  caddy:
+    ports:
+      - "${PROXY_PORT:-8080}:80"
+    volumes:
+      - ./infra/caddy/Caddyfile.dev:/etc/caddy/Caddyfile:ro

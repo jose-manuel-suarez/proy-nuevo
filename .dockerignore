@@ -1,0 +1,26 @@
+# Build context is the repository root, so exclude everything the images
+# do not need. Keep lockfiles and source; drop secrets, VCS, caches, docs.
+.git
+.gitignore
+.github
+.opencode
+.openspec
+openspec
+docs
+infra
+.env
+.env.*
+!.env.example
+**/__pycache__
+**/*.py[cod]
+**/.venv
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+**/dist
+**/build
+**/*.egg-info
+**/coverage.xml
+**/htmlcov
+README.md
+**/README.md

@@ -1,0 +1,5 @@
+# Normalize every text file to LF, including on Windows checkouts, so shell
+# scripts and container files behave identically everywhere.
+* text=auto eol=lf
+
+*.ps1 text eol=crlf
