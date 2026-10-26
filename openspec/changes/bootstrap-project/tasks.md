@@ -44,14 +44,14 @@
 
 ## 6. Continuous integration
 
-- [ ] 6.1 Add the CI workflow skeleton with pinned action versions and path filters; verify a pull request triggers it and a push to a feature branch triggers it.
+- [x] 6.1 Add the CI workflow skeleton with pinned action versions and path filters; verify a pull request triggers it and a push to a feature branch triggers it.
 - [x] 6.2 Add the lint and type-check jobs using ruff and mypy; verify an injected lint violation and an injected type error each fail the corresponding job.
 - [x] 6.3 Add the backend test job with a PostgreSQL service container and a per-run database; verify the job passes and fails when a backend test is deliberately broken.
 - [x] 6.4 Add the frontend test job; verify it fails when a tested template is broken.
 - [x] 6.5 Add the migration consistency job that upgrades an empty database and runs `alembic check`; verify it fails when a model change has no migration.
 - [x] 6.6 Add the image build job for both applications with no registry login; verify both images build and no package is published.
 - [x] 6.7 Add the Compose smoke job that starts the built stack and asserts the index page renders through the proxy; verify it fails when the frontend cannot reach the backend.
-- [ ] 6.8 Add dependency caching keyed by lockfile hash; verify a second run reports a cache hit for both Python projects.
+- [x] 6.8 Add dependency caching keyed by lockfile hash; verify a second run reports a cache hit for both Python projects.
 - [x] 6.9 Document in `docs/ci.md` which jobs are required checks and what each failure means; verify the names match the workflow job identifiers exactly.
 
 ## 7. Host preparation and delivery
