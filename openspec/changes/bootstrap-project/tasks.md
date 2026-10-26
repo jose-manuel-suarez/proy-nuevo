@@ -67,11 +67,11 @@
 
 ## 8. Branch governance and release gate
 
-- [ ] 8.1 Add the branch-name check that rejects pull requests whose head branch does not match `feature/<change-name>`; verify a pull request from a non-matching branch is blocked.
-- [ ] 8.2 Write `infra/github/ruleset.sh` using `gh api` to require pull requests, required checks, linear history, squash merges, and branch deletion, with no contributor bypass; verify a direct push to `main` is rejected for a regular contributor and an administrator.
-- [ ] 8.3 Create the `archive` label and add the gate workflow listening to both `pull_request: labeled` and `workflow_run: completed`, evaluating label, required-check, and mergeability predicates before merging; verify a pull request with green checks but no label does not merge.
+- [x] 8.1 Add the branch-name check that rejects pull requests whose head branch does not match `feature/<change-name>`; verify a pull request from a non-matching branch is blocked.
+- [x] 8.2 Write `infra/github/ruleset.sh` using `gh api` to require pull requests, required checks, linear history, squash merges, and branch deletion, with no contributor bypass; verify a direct push to `main` is rejected for a regular contributor and an administrator.
+- [x] 8.3 Create the `archive` label and add the gate workflow listening to both `pull_request: labeled` and `workflow_run: completed`, evaluating label, required-check, and mergeability predicates before merging; verify a pull request with green checks but no label does not merge.
 - [ ] 8.4 Wire the gate to squash merge, delete the branch, and dispatch the deploy workflow with the merge commit SHA; verify a deploy run exists for the merge commit after a labeled merge.
-- [ ] 8.5 Add single-pull-request reuse and archive idempotency to the archive guidance; verify a second workflow run on the same branch reuses the open pull request and skips re-archiving.
+- [x] 8.5 Add single-pull-request reuse and archive idempotency to the archive guidance; verify a second workflow run on the same branch reuses the open pull request and skips re-archiving.
 - [x] 8.6 Add the artifact `rules` and `operations.archive` blocks to `openspec/config.yaml`; verify `openspec instructions proposal --json` returns the rollback-plan rule and `openspec validate --specs --strict` still passes.
 - [x] 8.7 Document the change-to-merge workflow in `docs/workflow.md`, including the archive label as the sole merge authorization; verify the steps match the gate workflow and the ruleset script.
 
