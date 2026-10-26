@@ -175,6 +175,7 @@ jobs:
         run: uv run alembic check
 
   images:
+    name: images (${{ matrix.service }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
